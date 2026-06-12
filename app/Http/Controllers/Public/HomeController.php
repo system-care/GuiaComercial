@@ -110,9 +110,19 @@ class HomeController extends Controller
             ->map(fn (NicheCategory $cat) => [
                 'name' => $cat->name,
                 'slug' => $cat->key,
-                'icon' => $cat->icon,
+                'icon' => $this->categoryIcon($cat),
             ])
             ->all();
+    }
+
+    private function categoryIcon(NicheCategory $category): string
+    {
+        return match ($category->key) {
+            'pets' => 'gc-pet',
+            'profissional' => 'heroicon-o-academic-cap',
+            'eventos' => 'heroicon-o-cake',
+            default => $category->icon ?: 'heroicon-o-briefcase',
+        };
     }
 
     private function companyCards(Collection $tenants): array

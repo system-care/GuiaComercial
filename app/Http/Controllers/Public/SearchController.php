@@ -35,7 +35,7 @@ class SearchController extends Controller
                 ->map(fn ($c) => [
                     'label' => $c->name,
                     'value' => $c->key,
-                    'icon'  => $c->icon,
+                    'icon'  => $this->categoryIcon($c),
                 ])
                 ->all()
             : [];
@@ -94,6 +94,16 @@ class SearchController extends Controller
             ->latest()
             ->limit(PublicSearch::PUBLIC_TENANT_LIMIT)
             ->get();
+    }
+
+    private function categoryIcon(NicheCategory $category): string
+    {
+        return match ($category->key) {
+            'pets' => 'gc-pet',
+            'profissional' => 'heroicon-o-academic-cap',
+            'eventos' => 'heroicon-o-cake',
+            default => $category->icon ?: 'heroicon-o-briefcase',
+        };
     }
 
     private function servicesByTenant(Collection $tenants): Collection
