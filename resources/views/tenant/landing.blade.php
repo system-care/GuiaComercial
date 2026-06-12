@@ -177,12 +177,12 @@
     </header>
 
     <main id="inicio">
-        <section class="relative overflow-hidden">
-            <div class="absolute inset-x-0 top-0 h-[72%] {{ $bannerUrl ? 'gc-hero-image bg-cover bg-center' : 'gc-hero-bg' }}"></div>
-            <div class="absolute inset-x-0 top-0 h-[72%] bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.32),transparent_28rem)]"></div>
+        <section class="relative overflow-visible bg-slate-50">
+            <div class="absolute inset-x-0 top-0 bottom-16 {{ $bannerUrl ? 'gc-hero-image bg-cover bg-center' : 'gc-hero-bg' }}"></div>
+            <div class="absolute inset-x-0 top-0 bottom-16 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.32),transparent_28rem)]"></div>
 
-            <div class="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-24">
-                <div class="mx-auto flex max-w-4xl flex-col items-center text-center text-white">
+            <div class="relative mx-auto max-w-7xl px-4 pb-28 pt-12 sm:px-6 sm:pb-32 sm:pt-16 lg:px-8 lg:pb-36 lg:pt-24">
+                <div class="mx-auto flex max-w-6xl flex-col items-center text-center text-white">
                     <div class="mb-6 flex flex-wrap items-center justify-center gap-3">
                         <span class="rounded-full bg-white/15 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-white ring-1 ring-white/20 backdrop-blur">
                             {{ $nicheName }}
@@ -194,7 +194,7 @@
                         @endif
                     </div>
 
-                    <h1 class="max-w-4xl text-4xl font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-7xl">
+                    <h1 class="max-w-6xl text-4xl font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-7xl">
                         {{ $heroTitle !== '' ? $heroTitle : $tenant->name }}
                     </h1>
 
@@ -215,8 +215,10 @@
                         @endif
                     </div>
                 </div>
+            </div>
 
-                <div class="gc-glass mt-12 rounded-[2rem] border border-white/60 p-4 shadow-soft">
+            <div class="relative z-10 mx-auto -mt-16 max-w-7xl px-4 sm:-mt-20 sm:px-6 lg:px-8">
+                <div class="gc-glass rounded-[2rem] border border-white/60 p-4 shadow-soft">
                     <div class="grid gap-3 rounded-[1.5rem] bg-white p-3 sm:grid-cols-2 lg:grid-cols-4">
                         <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
                             <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">✓</span>
