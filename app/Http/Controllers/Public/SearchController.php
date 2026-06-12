@@ -30,7 +30,14 @@ class SearchController extends Controller
         $robots          = $hasFilters ? 'noindex,follow' : 'index,follow';
 
         $categories = Schema::hasTable('niche_categories')
-            ? NicheCategory::active()->get()->map(fn ($c) => ['label' => $c->name, 'value' => $c->key])->all()
+            ? NicheCategory::active()
+                ->get()
+                ->map(fn ($c) => [
+                    'label' => $c->name,
+                    'value' => $c->key,
+                    'icon'  => $c->icon,
+                ])
+                ->all()
             : [];
 
         if (! Schema::hasTable('tenants')) {
