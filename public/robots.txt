@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /buscar
+Allow: /servicos/
+Allow: /cidades/
+Allow: /empresas/
+Allow: /storage/
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /interno/
+Disallow: /api/
+Disallow: /agendar/
+Disallow: /confirmar/
+Disallow: /zap/
+Disallow: /*?lat=*
+Disallow: /*?*lat=*
+
+Sitemap: https://guiacomercial.app/sitemap.xml
