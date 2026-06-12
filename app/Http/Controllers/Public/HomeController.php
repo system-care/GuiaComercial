@@ -144,7 +144,7 @@ class HomeController extends Controller
             'initials' => $this->initials($tenant->name),
             'services' => $services->pluck('name')->take(3)->values()->all(),
             'profile_url' => route('public.companies.show', $tenant->slug),
-            'booking_url' => route('booking.show', $tenant->slug),
+            'booking_url' => route('tenant.landing', $tenant->slug) . '#agendar',
             'has_online_booking' => (bool) ($settings['allow_online_booking'] ?? true),
         ];
     }
