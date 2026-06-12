@@ -156,9 +156,9 @@
             <div class="absolute inset-x-0 top-0 h-[72%] {{ $bannerUrl ? 'gc-hero-image bg-cover bg-center' : 'gc-hero-bg' }}"></div>
             <div class="absolute inset-x-0 top-0 h-[72%] bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.32),transparent_28rem)]"></div>
 
-            <div class="relative mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:pb-24 lg:pt-24">
-                <div class="flex flex-col justify-center text-white">
-                    <div class="mb-6 flex flex-wrap items-center gap-3">
+            <div class="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-24">
+                <div class="mx-auto flex max-w-4xl flex-col items-center text-center text-white">
+                    <div class="mb-6 flex flex-wrap items-center justify-center gap-3">
                         <span class="rounded-full bg-white/15 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-white ring-1 ring-white/20 backdrop-blur">
                             {{ $nicheName }}
                         </span>
@@ -169,15 +169,15 @@
                         @endif
                     </div>
 
-                    <h1 class="max-w-3xl text-4xl font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-7xl">
+                    <h1 class="max-w-4xl text-4xl font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-7xl">
                         {{ $heroTitle !== '' ? $heroTitle : $tenant->name }}
                     </h1>
 
-                    <p class="mt-6 max-w-2xl text-base leading-8 text-white/82 sm:text-lg">
+                    <p class="mt-6 max-w-3xl text-base leading-8 text-white/82 sm:text-lg">
                         {{ $heroSubtitle !== '' ? $heroSubtitle : ($description !== '' ? $description : 'Atendimento profissional, serviços selecionados e agendamento online em poucos passos.') }}
                     </p>
 
-                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <div class="mt-8 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
                         @if ($hasBooking)
                             <a href="#agendar" class="inline-flex min-h-14 items-center justify-center rounded-full bg-white px-8 py-4 text-sm font-black text-slate-950 shadow-2xl shadow-black/20 transition hover:-translate-y-0.5">
                                 Agende seu horário
@@ -191,69 +191,43 @@
                     </div>
                 </div>
 
-                <aside class="lg:pl-8">
-                    <div class="gc-glass overflow-hidden rounded-[2rem] border border-white/60 p-5 shadow-soft">
-                        <div class="rounded-[1.5rem] bg-white p-5 shadow-lg shadow-slate-950/5">
-                            <div class="flex items-start gap-4">
-                                @if ($logoUrl)
-                                    <img src="{{ $logoUrl }}" alt="Logo {{ $tenant->name }}" class="h-16 w-16 rounded-3xl object-contain ring-1 ring-slate-200">
-                                @else
-                                    <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand text-2xl font-black text-white">
-                                        {{ mb_substr($tenant->name, 0, 1) }}
-                                    </div>
-                                @endif
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Perfil verificado</p>
-                                    <h2 class="mt-1 text-xl font-black leading-tight text-slate-950">{{ $tenant->name }}</h2>
-                                    <p class="mt-2 text-sm font-semibold text-slate-500">{{ $nicheName }}</p>
+                <div class="gc-glass mt-12 rounded-[2rem] border border-white/60 p-4 shadow-soft">
+                    <div class="grid gap-3 rounded-[1.5rem] bg-white p-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">✓</span>
+                            <div>
+                                <p class="text-sm font-black text-slate-950">Perfil verificado</p>
+                                <p class="text-xs font-bold text-slate-500">{{ $nicheName }}</p>
+                            </div>
+                        </div>
+
+                        @if ($location)
+                            <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+                                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">📍</span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-black text-slate-950">Localização</p>
+                                    <p class="truncate text-xs font-bold text-slate-500">{{ $location }}</p>
                                 </div>
                             </div>
+                        @endif
 
-                            <div class="mt-6 grid gap-3">
-                                @if ($location)
-                                    <div class="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">📍</span>
-                                        <div>
-                                            <p class="text-xs font-black uppercase tracking-wide text-slate-400">Localização</p>
-                                            <p class="text-sm font-bold text-slate-700">{{ $location }}</p>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @if ($tenant->phone || $whatsappUrl)
-                                    <div class="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">☎</span>
-                                        <div>
-                                            <p class="text-xs font-black uppercase tracking-wide text-slate-400">Contato</p>
-                                            <p class="text-sm font-bold text-slate-700">{{ $tenant->phone ?: 'Atendimento via WhatsApp' }}</p>
-                                        </div>
-                                    </div>
-                                @endif
+                        <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">{{ $services->count() }}</span>
+                            <div>
+                                <p class="text-sm font-black text-slate-950">Serviços</p>
+                                <p class="text-xs font-bold text-slate-500">opções disponíveis</p>
                             </div>
+                        </div>
 
-                            <div class="mt-6 grid grid-cols-2 gap-3">
-                                <div class="rounded-3xl border border-slate-100 p-4 text-center">
-                                    <p class="text-2xl font-black text-slate-950">{{ $services->count() }}</p>
-                                    <p class="text-xs font-bold text-slate-500">serviços</p>
-                                </div>
-                                <div class="rounded-3xl border border-slate-100 p-4 text-center">
-                                    <p class="text-2xl font-black text-slate-950">{{ $professionals->count() }}</p>
-                                    <p class="text-xs font-bold text-slate-500">profissionais</p>
-                                </div>
+                        <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">{{ $professionals->count() }}</span>
+                            <div>
+                                <p class="text-sm font-black text-slate-950">Equipe</p>
+                                <p class="text-xs font-bold text-slate-500">profissionais ativos</p>
                             </div>
-
-                            @if ($hasBooking)
-                                <a href="#agendar" class="mt-6 flex min-h-14 items-center justify-center rounded-2xl bg-brand px-5 py-4 text-sm font-black text-white shadow-lg shadow-slate-950/10 transition hover:opacity-90">
-                                    Agendar agora
-                                </a>
-                            @elseif ($whatsappUrl)
-                                <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="mt-6 flex min-h-14 items-center justify-center rounded-2xl bg-emerald-500 px-5 py-4 text-sm font-black text-white shadow-lg shadow-emerald-900/10 transition hover:bg-emerald-600">
-                                    Falar no WhatsApp
-                                </a>
-                            @endif
                         </div>
                     </div>
-                </aside>
+                </div>
             </div>
         </section>
 
