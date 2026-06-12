@@ -108,6 +108,14 @@
             this.serviceModalOpen = true;
             document.body.classList.add('overflow-hidden');
         },
+        openServiceModalFromButton(button) {
+            this.openServiceModal({
+                name: button.dataset.serviceName || '',
+                description: button.dataset.serviceDescription || 'Este serviço ainda não possui uma descrição completa cadastrada.',
+                duration: button.dataset.serviceDuration || '',
+                price: button.dataset.servicePrice || '',
+            });
+        },
         closeServiceModal() {
             this.serviceModalOpen = false;
             document.body.classList.remove('overflow-hidden');
@@ -328,12 +336,11 @@
                                         class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
                                         title="Ver mais"
                                         aria-label="Ver descrição completa de {{ $service->name }}"
-                                        @click='openServiceModal(@js([
-                                            'name' => $service->name,
-                                            'description' => $serviceDescription !== '' ? $serviceDescription : 'Este serviço ainda não possui uma descrição completa cadastrada.',
-                                            'duration' => $service->duration_minutes . ' min',
-                                            'price' => $servicePrice,
-                                        ]))'
+                                        data-service-name="{{ e($service->name) }}"
+                                        data-service-description="{{ e($serviceDescription !== '' ? $serviceDescription : 'Este serviço ainda não possui uma descrição completa cadastrada.') }}"
+                                        data-service-duration="{{ e($service->duration_minutes . ' min') }}"
+                                        data-service-price="{{ e($servicePrice ?? '') }}"
+                                        @click="openServiceModalFromButton($el)"
                                     >
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"/>
