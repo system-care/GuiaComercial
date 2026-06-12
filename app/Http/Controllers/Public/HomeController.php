@@ -107,7 +107,11 @@ class HomeController extends Controller
 
         return NicheCategory::active()
             ->get()
-            ->map(fn (NicheCategory $cat) => ['name' => $cat->name, 'slug' => $cat->key])
+            ->map(fn (NicheCategory $cat) => [
+                'name' => $cat->name,
+                'slug' => $cat->key,
+                'icon' => $cat->icon,
+            ])
             ->all();
     }
 

@@ -67,7 +67,12 @@
         <div class="mt-5 flex flex-wrap justify-center items-center gap-x-1 gap-y-2 text-sm">
             <span class="font-semibold text-slate-600 mr-1">Popular:</span>
             @foreach ($categories as $category)
-                <a href="{{ url('/servicos/' . $category['slug']) }}" class="rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-slate-700 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600 transition-colors">{{ $category['name'] }}</a>
+                <a href="{{ url('/servicos/' . $category['slug']) }}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 font-semibold text-slate-700 shadow-sm shadow-slate-200/40 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600">
+                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-orange-500">
+                        @include('public.components.category-icon', ['icon' => $category['icon'] ?? null, 'class' => 'h-3.5 w-3.5'])
+                    </span>
+                    <span>{{ $category['name'] }}</span>
+                </a>
             @endforeach
         </div>
     </div>
