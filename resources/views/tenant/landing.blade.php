@@ -86,10 +86,35 @@
         .gc-wa-float {
             bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
     @livewireStyles
 </head>
-<body class="min-h-screen font-sans text-slate-800 antialiased">
+<body
+    class="min-h-screen font-sans text-slate-800 antialiased"
+    x-data="{
+        serviceModalOpen: false,
+        serviceModal: {
+            name: '',
+            description: '',
+            duration: '',
+            price: '',
+        },
+        openServiceModal(service) {
+            this.serviceModal = service;
+            this.serviceModalOpen = true;
+            document.body.classList.add('overflow-hidden');
+        },
+        closeServiceModal() {
+            this.serviceModalOpen = false;
+            document.body.classList.remove('overflow-hidden');
+        },
+    }"
+    @keydown.escape.window="closeServiceModal()"
+>
     <header class="sticky top-0 z-40 border-b border-white/70 bg-white/85 backdrop-blur-xl">
         <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
             <a href="#inicio" class="flex min-w-0 items-center gap-3">
@@ -280,15 +305,45 @@
 
                     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         @foreach ($services as $service)
+                            @php
+                                $serviceDescription = trim((string) ($service->description ?? ''));
+                                $servicePrice = null;
+                                if (($settings['show_prices'] ?? true) && $service->price > 0) {
+                                    $servicePrice = 'R$ ' . number_format($service->price, 2, ',', '.');
+                                } elseif (($settings['show_prices'] ?? true) && (float) $service->price === 0.0) {
+                                    $servicePrice = 'Gratuito';
+                                }
+                            @endphp
                             <article class="group rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
-                                <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg shadow-slate-950/10" style="background-color: {{ $service->color ?? $primary }}">
-                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                    </svg>
+                                <div class="mb-5 flex items-start justify-between gap-4">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg shadow-slate-950/10" style="background-color: {{ $service->color ?? $primary }}">
+                                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                        </svg>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
+                                        title="Ver mais"
+                                        aria-label="Ver descrição completa de {{ $service->name }}"
+                                        @click='openServiceModal(@js([
+                                            'name' => $service->name,
+                                            'description' => $serviceDescription !== '' ? $serviceDescription : 'Este serviço ainda não possui uma descrição completa cadastrada.',
+                                            'duration' => $service->duration_minutes . ' min',
+                                            'price' => $servicePrice,
+                                        ]))'
+                                    >
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                        </svg>
+                                    </button>
                                 </div>
                                 <h3 class="text-lg font-black text-slate-950">{{ $service->name }}</h3>
-                                @if ($service->description)
-                                    <p class="mt-2 text-sm leading-6 text-slate-500">{{ \Illuminate\Support\Str::limit($service->description, 120) }}</p>
+                                @if ($serviceDescription !== '')
+                                    <p class="mt-2 text-sm leading-6 text-slate-500">{{ \Illuminate\Support\Str::limit($serviceDescription, 120) }}</p>
+                                @else
+                                    <p class="mt-2 text-sm leading-6 text-slate-500">Clique no olho para ver os detalhes deste serviço.</p>
                                 @endif
                                 <div class="mt-6 flex items-center justify-between gap-3 border-t border-slate-100 pt-5">
                                     <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600">{{ $service->duration_minutes }} min</span>
@@ -393,6 +448,65 @@
             </div>
         </div>
     </footer>
+
+    <div
+        x-cloak
+        x-show="serviceModalOpen"
+        x-transition.opacity
+        class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        @click.self="closeServiceModal()"
+    >
+        <div
+            x-show="serviceModalOpen"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="translate-y-4 scale-95 opacity-0"
+            x-transition:enter-end="translate-y-0 scale-100 opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="translate-y-0 scale-100 opacity-100"
+            x-transition:leave-end="translate-y-4 scale-95 opacity-0"
+            class="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] bg-white p-6 shadow-2xl sm:p-8"
+        >
+            <button
+                type="button"
+                class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-slate-950"
+                aria-label="Fechar modal"
+                @click="closeServiceModal()"
+            >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <div class="pr-12">
+                <p class="gc-section-label text-xs font-black uppercase tracking-[0.24em]">Detalhes do serviço</p>
+                <h3 class="mt-3 text-2xl font-black leading-tight text-slate-950 sm:text-3xl" x-text="serviceModal.name"></h3>
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+                <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-700" x-text="serviceModal.duration"></span>
+                <template x-if="serviceModal.price">
+                    <span class="rounded-full bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700" x-text="serviceModal.price"></span>
+                </template>
+            </div>
+
+            <div class="mt-7 rounded-3xl bg-slate-50 p-5">
+                <p class="whitespace-pre-line text-base leading-8 text-slate-600" x-text="serviceModal.description"></p>
+            </div>
+
+            <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+                @if ($hasBooking)
+                    <a href="#agendar" class="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-6 py-3 text-sm font-black text-white transition hover:opacity-90" @click="closeServiceModal()">
+                        Agendar este serviço
+                    </a>
+                @endif
+                <button type="button" class="inline-flex min-h-12 items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50" @click="closeServiceModal()">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
 
     @if ($whatsappUrl)
         <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" title="Falar no WhatsApp" class="gc-wa-float fixed right-4 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-white shadow-2xl shadow-emerald-950/25 transition hover:-translate-y-1 hover:bg-emerald-600 sm:right-6">
