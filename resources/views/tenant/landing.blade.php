@@ -22,6 +22,8 @@
         $whatsappUrl = $cleanWhatsapp ? 'https://wa.me/' . $cleanWhatsapp : null;
         $hasBooking = (bool) ($settings['allow_online_booking'] ?? true);
         $description = trim((string) ($settings['description'] ?? ''));
+        $heroTitle = trim((string) ($settings['hero_title'] ?? ''));
+        $heroSubtitle = trim((string) ($settings['hero_subtitle'] ?? ''));
         $address = trim((string) ($settings['address'] ?? ''));
         $location = $address !== '' ? $address : $tenant->city;
         $logoUrl = !empty($settings['logo_path']) ? asset('storage/' . $settings['logo_path']) : null;
@@ -168,11 +170,11 @@
                     </div>
 
                     <h1 class="max-w-3xl text-4xl font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-7xl">
-                        {{ $tenant->name }}
+                        {{ $heroTitle !== '' ? $heroTitle : $tenant->name }}
                     </h1>
 
                     <p class="mt-6 max-w-2xl text-base leading-8 text-white/82 sm:text-lg">
-                        {{ $description !== '' ? $description : 'Atendimento profissional, serviços selecionados e agendamento online em poucos passos.' }}
+                        {{ $heroSubtitle !== '' ? $heroSubtitle : ($description !== '' ? $description : 'Atendimento profissional, serviços selecionados e agendamento online em poucos passos.') }}
                     </p>
 
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">

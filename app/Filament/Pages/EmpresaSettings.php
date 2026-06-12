@@ -47,6 +47,8 @@ class EmpresaSettings extends Page
     public string  $youtube       = '';
     public string  $tiktok        = '';
     public string  $website       = '';
+    public string  $hero_title    = '';
+    public string  $hero_subtitle = '';
     public string  $primary_color = '#7c3aed';
     public bool    $show_prices          = true;
     public bool    $show_team            = true;
@@ -113,6 +115,8 @@ class EmpresaSettings extends Page
         $this->youtube              = $settings['youtube']              ?? '';
         $this->tiktok               = $settings['tiktok']               ?? '';
         $this->website              = $settings['website']              ?? '';
+        $this->hero_title           = $settings['hero_title']           ?? '';
+        $this->hero_subtitle        = $settings['hero_subtitle']        ?? '';
         $this->primary_color        = $settings['primary_color']        ?? '#7c3aed';
         $this->show_prices          = (bool) ($settings['show_prices']          ?? true);
         $this->show_team            = (bool) ($settings['show_team']            ?? true);
@@ -180,6 +184,21 @@ class EmpresaSettings extends Page
                                 ColorPicker::make('primary_color')
                                     ->label('Cor principal da página')
                                     ->helperText('Usada em botões, destaques e bordas.')
+                                    ->columnSpanFull(),
+
+                                TextInput::make('hero_title')
+                                    ->label('Título personalizado do Hero Banner')
+                                    ->placeholder('Ex: Saúde integrativa com atendimento humanizado')
+                                    ->helperText('Se ficar vazio, será usado o nome da empresa.')
+                                    ->maxLength(90)
+                                    ->columnSpanFull(),
+
+                                Textarea::make('hero_subtitle')
+                                    ->label('Descrição curta do Hero Banner')
+                                    ->placeholder('Texto curto exibido logo abaixo do título principal.')
+                                    ->helperText('Recomendado: até 180 caracteres.')
+                                    ->rows(3)
+                                    ->maxLength(220)
                                     ->columnSpanFull(),
                             ]),
 
@@ -605,6 +624,8 @@ class EmpresaSettings extends Page
             'youtube'              => $this->youtube,
             'tiktok'               => $this->tiktok,
             'website'              => $this->website,
+            'hero_title'           => trim($this->hero_title),
+            'hero_subtitle'        => trim($this->hero_subtitle),
             'primary_color'        => $this->primary_color,
             'show_prices'          => $this->show_prices,
             'show_team'            => $this->show_team,
