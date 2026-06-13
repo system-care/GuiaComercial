@@ -2,6 +2,12 @@
     $icon ??= null;
     $class ??= 'h-4 w-4';
 
+    $emojis = [
+        'gc-dog' => '🐶',
+        'gc-graduation' => '🎓',
+        'gc-birthday-cake' => '🎂',
+    ];
+
     $paths = [
         'gc-pet' => '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 10.5c-.828 0-1.5-.84-1.5-1.875S7.422 6.75 8.25 6.75s1.5.84 1.5 1.875S9.078 10.5 8.25 10.5Zm7.5 0c-.828 0-1.5-.84-1.5-1.875s.672-1.875 1.5-1.875 1.5.84 1.5 1.875-.672 1.875-1.5 1.875ZM5.625 15c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5Zm12.75 0c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5Zm-9.84 2.164c.72-1.326 1.481-2.414 3.465-2.414s2.745 1.088 3.465 2.414c.647 1.19-.152 2.586-1.508 2.586h-3.914c-1.356 0-2.155-1.396-1.508-2.586Z" />',
         'heroicon-o-heart' => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />',
@@ -17,6 +23,10 @@
     $path = $paths[$icon] ?? $paths['heroicon-o-briefcase'];
 @endphp
 
-<svg class="{{ $class }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-    {!! $path !!}
-</svg>
+@if (isset($emojis[$icon]))
+    <span class="{{ $class }} inline-flex items-center justify-center leading-none" aria-hidden="true">{{ $emojis[$icon] }}</span>
+@else
+    <svg class="{{ $class }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+        {!! $path !!}
+    </svg>
+@endif

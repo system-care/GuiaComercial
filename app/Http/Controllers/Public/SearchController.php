@@ -99,9 +99,9 @@ class SearchController extends Controller
     private function categoryIcon(NicheCategory $category): string
     {
         return match ($category->key) {
-            'pets' => 'gc-pet',
-            'profissional' => 'heroicon-o-academic-cap',
-            'eventos' => 'heroicon-o-cake',
+            'pets' => 'gc-dog',
+            'profissional' => 'gc-graduation',
+            'eventos' => 'gc-birthday-cake',
             default => $category->icon ?: 'heroicon-o-briefcase',
         };
     }
