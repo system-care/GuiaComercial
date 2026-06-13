@@ -30,7 +30,14 @@ class SearchController extends Controller
         $robots          = $hasFilters ? 'noindex,follow' : 'index,follow';
 
         $categories = Schema::hasTable('niche_categories')
-            ? NicheCategory::active()->get()->map(fn ($c) => ['label' => $c->name, 'value' => $c->key])->all()
+            ? NicheCategory::active()
+                ->get()
+                ->map(fn ($c) => [
+                    'label' => $c->name,
+                    'value' => $c->key,
+                    'icon'  => $this->categoryIcon($c),
+                ])
+                ->all()
             : [];
 
         if (! Schema::hasTable('tenants')) {
@@ -61,9 +68,10 @@ class SearchController extends Controller
         }
 
         $paginatedTenants = $this->paginateTenants($filteredTenants, $request);
+        $termTerms        = PublicSearch::terms($term);
 
         return view('public.search', [
-            'companies'       => $this->companyCards($paginatedTenants->getCollection()),
+            'companies'       => $this->companyCards($paginatedTenants->getCollection(), $termTerms),
             'tenants'         => $paginatedTenants,
             'term'            => $term,
             'location'        => $location,
@@ -86,6 +94,16 @@ class SearchController extends Controller
             ->latest()
             ->limit(PublicSearch::PUBLIC_TENANT_LIMIT)
             ->get();
+    }
+
+    private function categoryIcon(NicheCategory $category): string
+    {
+        return match ($category->key) {
+            'pets' => 'gc-dog',
+            'profissional' => 'gc-graduation',
+            'eventos' => 'gc-birthday-cake',
+            default => $category->icon ?: 'heroicon-o-briefcase',
+        };
     }
 
     private function servicesByTenant(Collection $tenants): Collection
@@ -147,10 +165,10 @@ class SearchController extends Controller
         );
     }
 
-    private function companyCards(Collection $tenants): array
+    private function companyCards(Collection $tenants, array $termTerms = []): array
     {
         if ($tenants->isEmpty() || ! Schema::hasTable('services')) {
-            return $tenants->map(fn (Tenant $tenant) => $this->cardData($tenant, collect()))->all();
+            return $tenants->map(fn (Tenant $tenant) => $this->cardData($tenant, collect(), $termTerms))->all();
         }
 
         $services = Service::withoutGlobalScope('tenant')
@@ -161,11 +179,11 @@ class SearchController extends Controller
             ->groupBy('tenant_id');
 
         return $tenants
-            ->map(fn (Tenant $tenant) => $this->cardData($tenant, $services->get($tenant->id, collect())))
+            ->map(fn (Tenant $tenant) => $this->cardData($tenant, $services->get($tenant->id, collect()), $termTerms))
             ->all();
     }
 
-    private function cardData(Tenant $tenant, Collection $services): array
+    private function cardData(Tenant $tenant, Collection $services, array $termTerms = []): array
     {
         $settings      = $tenant->settings?->settings ?? [];
         $logoPath      = $settings['logo_path'] ?? null;
@@ -181,12 +199,29 @@ class SearchController extends Controller
             'logo_url'           => $logoPath ? asset('storage/' . $logoPath) : null,
             'accent'             => $this->accentFor($tenant->id),
             'initials'           => $this->initials($tenant->name),
-            'services'           => $services->pluck('name')->take(3)->values()->all(),
+            'services'           => $this->serviceNamesForCard($services, $termTerms),
             'profile_url'        => route('public.companies.show', $tenant->slug),
             'booking_url'        => route('booking.show', $tenant->slug),
             'has_online_booking' => (bool) ($settings['allow_online_booking'] ?? true),
             'distance_label'     => $distanceLabel,
         ];
+    }
+
+    private function serviceNamesForCard(Collection $services, array $termTerms = []): array
+    {
+        if ($termTerms === []) {
+            return $services->pluck('name')->take(3)->values()->all();
+        }
+
+        return $services
+            ->sortByDesc(fn (Service $service) => PublicSearch::matches($termTerms, implode(' ', array_filter([
+                $service->name,
+                $service->description,
+            ]))))
+            ->pluck('name')
+            ->take(3)
+            ->values()
+            ->all();
     }
 
     private function metaDescription(string $term, string $location): string

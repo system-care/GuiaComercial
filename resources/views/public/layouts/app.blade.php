@@ -37,7 +37,7 @@
     @endif
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    @livewireStyles
     <style>
         *, ::before, ::after { min-width: 0; }
         h1, h2, h3 { overflow-wrap: anywhere; }
@@ -131,5 +131,6 @@
             <a href="{{ url('/politica-de-privacidade') }}" class="hover:text-violet-600 hover:underline">Política de Privacidade</a>
         </div>
     </footer>
+    @livewireScripts
 </body>
 </html>

@@ -11,7 +11,7 @@
         <section class="relative overflow-hidden text-white {{ $profile['banner_url'] ? 'bg-transparent' : 'bg-slate-950' }}">
             @if ($profile['banner_url'])
                 <div class="absolute inset-0">
-                    <img src="{{ $profile['banner_url'] }}" alt="" class="h-full w-full object-cover">
+                    <img src="{{ $profile['banner_url'] }}" alt="" class="h-full w-full object-cover object-top">
                     <div class="absolute inset-0 bg-black/50"></div>
                 </div>
             @else
@@ -24,35 +24,29 @@
                         ← Voltar para a busca
                     </a>
 
-                    <div class="mt-8 flex flex-col gap-5 sm:flex-row sm:items-center">
-                        <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-white/20 bg-white text-3xl font-black text-sky-700 shadow-2xl">
-                            @if ($profile['logo_url'])
-                                <img src="{{ $profile['logo_url'] }}" alt="Logo de {{ $profile['name'] }}" class="h-full w-full object-cover">
-                            @else
-                                {{ $profile['initials'] }}
-                            @endif
+                    <div class="mt-8">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="rounded-full bg-sky-400/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-sky-100">{{ $profile['category'] }}</span>
+                            <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-emerald-100">
+                                {{ $profile['has_online_booking'] ? 'Agenda online' : 'Perfil publicado' }}
+                            </span>
                         </div>
-
-                        <div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="rounded-full bg-sky-400/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-sky-100">{{ $profile['category'] }}</span>
-                                <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-emerald-100">
-                                    {{ $profile['has_online_booking'] ? 'Agenda online' : 'Perfil publicado' }}
-                                </span>
-                            </div>
-                            <h1 class="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{{ $profile['name'] }}</h1>
-                            <p class="mt-3 max-w-2xl text-base text-slate-200 sm:text-lg">{{ $profile['location'] }}</p>
-                        </div>
+                        <h1 class="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
+                            {{ $profile['hero_title'] !== '' ? $profile['hero_title'] : $profile['name'] }}
+                        </h1>
+                        <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-100">
+                            {{ $profile['hero_subtitle'] !== '' ? $profile['hero_subtitle'] : $profile['description'] }}
+                        </p>
                     </div>
 
-                    <p class="mt-8 max-w-3xl text-lg leading-8 text-slate-100">{{ $profile['description'] }}</p>
-
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                        <a href="{{ $profile['booking_url'] }}" class="inline-flex min-h-12 items-center justify-center rounded-2xl bg-sky-500 px-6 py-4 text-sm font-black text-white shadow-lg shadow-sky-950/30 transition hover:bg-sky-400">
+                        @if ($profile['has_online_booking'])
+                        <a href="#agendar" class="inline-flex min-h-12 items-center justify-center rounded-2xl bg-sky-500 px-6 py-4 text-sm font-black text-white shadow-lg shadow-sky-950/30 transition hover:bg-sky-400">
                             Agendar atendimento
                         </a>
-                        @if ($profile['whatsapp_url'])
-                            <a href="{{ $profile['whatsapp_url'] }}" target="_blank" rel="noopener" class="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-4 text-sm font-black text-white backdrop-blur transition hover:bg-white/15">
+                        @endif
+                        @if ($profile['whatsapp_encoded'])
+                            <a href="#" onclick="openWa('{{ $profile['whatsapp_encoded'] }}')" rel="noopener noreferrer" class="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-4 text-sm font-black text-white backdrop-blur transition hover:bg-white/15">
                                 Chamar no WhatsApp
                             </a>
                         @endif
@@ -69,17 +63,19 @@
                             <p class="font-black text-white">Categoria</p>
                             <p>{{ $profile['category'] }}</p>
                         </div>
-                        <div>
-                            <p class="font-black text-white">Localização</p>
-                            <p>{{ $profile['location'] }}</p>
-                            @if (! empty($distanceLabel))
-                                <p class="mt-1 font-semibold text-sky-300">{{ $distanceLabel }}</p>
-                            @endif
-                        </div>
-                        @if ($profile['phone'])
+                        @if ($profile['location'])
+                            <div>
+                                <p class="font-black text-white">Localização</p>
+                                <p>{{ $profile['location'] }}</p>
+                                @if (! empty($distanceLabel))
+                                    <p class="mt-1 font-semibold text-sky-300">{{ $distanceLabel }}</p>
+                                @endif
+                            </div>
+                        @endif
+                        @if ($profile['formatted_phone'])
                             <div>
                                 <p class="font-black text-white">Contato público</p>
-                                <p>{{ $profile['phone'] }}</p>
+                                <p>{{ $profile['formatted_phone'] }}</p>
                             </div>
                         @endif
                     </div>
@@ -101,6 +97,7 @@
         @endphp
 
         <style>[x-cloak]{display:none!important}</style>
+        <script>function openWa(e){window.open('https://wa.me/'+atob(e)+'?text='+encodeURIComponent('Seja bem-vindo! Como podemos lhe ajudar?'),'_blank','noopener,noreferrer')}</script>
 
         <div x-data="{ modal: null }" @keydown.escape.window="modal = null">
 
@@ -163,9 +160,11 @@
                                 @else
                                     <p class="text-sm text-slate-400">Sem descrição cadastrada.</p>
                                 @endif
-                                <a href="{{ $profile['booking_url'] }}" class="mt-6 flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700">
-                                    Agendar este serviço
-                                </a>
+                                @if ($profile['has_online_booking'])
+                                    <a href="#agendar" @click="modal = null" class="mt-6 flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700">
+                                        Agendar este serviço
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -208,9 +207,11 @@
                                         @endforeach
                                     </div>
                                 @endif
-                                <a href="{{ $profile['booking_url'] }}" class="mt-6 flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700">
-                                    Agendar com {{ explode(' ', $professional->name)[0] }}
-                                </a>
+                                @if ($profile['has_online_booking'])
+                                    <a href="#agendar" @click="modal = null" class="mt-6 flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700">
+                                        Agendar com {{ explode(' ', $professional->name)[0] }}
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -276,7 +277,15 @@
                     <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                         <p class="text-sm font-bold uppercase tracking-[0.2em] text-sky-600">Sobre</p>
                         <h2 class="mt-3 text-2xl font-black text-slate-950">Conheça {{ $profile['name'] }}</h2>
-                        <p class="mt-4 leading-7 text-slate-600">{{ $profile['description'] }}</p>
+                        @if ($profile['about_image_url'])
+                            <div class="mt-6 grid gap-6 sm:grid-cols-[1fr_2fr] sm:items-start">
+                                <img src="{{ $profile['about_image_url'] }}" alt="Sobre {{ $profile['name'] }}"
+                                     class="aspect-square w-full rounded-2xl object-cover">
+                                <p class="leading-7 text-slate-600">{{ $profile['description'] }}</p>
+                            </div>
+                        @else
+                            <p class="mt-4 leading-7 text-slate-600">{{ $profile['description'] }}</p>
+                        @endif
                     </article>
 
                     {{-- Serviços — grid 3 colunas, cards quadrados --}}
@@ -412,11 +421,13 @@
                             <h2 class="mt-3 text-2xl font-black text-slate-950">Fale com a empresa</h2>
                             <p class="mt-3 text-sm leading-6 text-slate-600">Use os canais públicos do perfil para consultar horários, serviços e disponibilidade.</p>
                             <div class="mt-6 space-y-3">
-                                <a href="{{ $profile['booking_url'] }}" class="flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700">
+                                @if ($profile['has_online_booking'])
+                                <a href="#agendar" class="flex items-center justify-center rounded-2xl bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700">
                                     Agendar agora
                                 </a>
-                                @if ($profile['whatsapp_url'])
-                                    <a href="{{ $profile['whatsapp_url'] }}" target="_blank" rel="noopener" class="flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-4 text-sm font-black text-slate-800 transition hover:border-emerald-200 hover:bg-emerald-50">
+                                @endif
+                                @if ($profile['whatsapp_encoded'])
+                                    <a href="#" onclick="openWa('{{ $profile['whatsapp_encoded'] }}')" rel="noopener noreferrer" class="flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-4 text-sm font-black text-slate-800 transition hover:border-emerald-200 hover:bg-emerald-50">
                                         WhatsApp
                                     </a>
                                 @endif
@@ -460,18 +471,53 @@
 
         </div>
 
+        {{-- ── Seção de Agendamento ────────────────────────────────────────────── --}}
+        @if ($profile['has_online_booking'])
+        <section id="agendar" class="bg-slate-950 py-16 text-white sm:py-20">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+
+                    <div class="lg:sticky lg:top-28">
+                        <p class="text-sm font-black uppercase tracking-[0.24em] text-white/50">Agendamento</p>
+                        <h2 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+                            Escolha o melhor horário para você.
+                        </h2>
+                        <p class="mt-5 text-base leading-8 text-white/65">
+                            {{ $profile['has_online_booking']
+                                ? 'Selecione serviço, profissional e horário em poucos passos.'
+                                : 'No momento, esta empresa atende agendamentos por contato direto.' }}
+                        </p>
+                        @if ($profile['whatsapp_encoded'])
+                            <a href="#" onclick="openWa('{{ $profile['whatsapp_encoded'] }}')" rel="noopener noreferrer"
+                               class="mt-7 inline-flex min-h-[3.25rem] items-center justify-center rounded-full bg-emerald-500 px-6 py-4 text-sm font-black text-white transition hover:bg-emerald-600">
+                                Falar no WhatsApp
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="overflow-hidden rounded-[2rem] border border-white/10 bg-white text-slate-900 shadow-2xl shadow-black/30">
+                        @livewire('booking.booking-wizard', ['tenantId' => $tenant->id])
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        @endif
+
+        @if ($profile['has_online_booking'])
         <div class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 pt-3 shadow-2xl backdrop-blur lg:hidden" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
             <div class="mx-auto flex max-w-7xl gap-2">
-                <a href="{{ $profile['booking_url'] }}" class="flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-sky-600 px-4 py-3 text-sm font-black text-white">
+                <a href="#agendar" class="flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-sky-600 px-4 py-3 text-sm font-black text-white">
                     Agendar
                 </a>
-                @if ($profile['whatsapp_url'])
-                    <a href="{{ $profile['whatsapp_url'] }}" target="_blank" rel="noopener" class="flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-800">
+                @if ($profile['whatsapp_encoded'])
+                    <a href="#" onclick="openWa('{{ $profile['whatsapp_encoded'] }}')" rel="noopener noreferrer" class="flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-800">
                         WhatsApp
                     </a>
                 @endif
             </div>
         </div>
+        @endif
     </main>
 @endsection
 

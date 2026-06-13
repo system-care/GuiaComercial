@@ -72,8 +72,11 @@
         <div class="mt-6 flex flex-wrap items-center gap-2">
             @foreach ($categories as $filter)
                 <a href="{{ url('/buscar?' . http_build_query(array_filter(['q' => $term, 'location' => $location, 'category' => $filter['value'], 'lat' => $userLat, 'lng' => $userLng]))) }}"
-                   class="rounded-full border px-4 py-2 text-sm font-semibold {{ $category === $filter['value'] ? 'border-violet-300 bg-violet-50 text-violet-700' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-200 hover:text-violet-700' }}">
-                    {{ $filter['label'] }}
+                   class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition {{ $category === $filter['value'] ? 'border-violet-300 bg-violet-50 text-violet-700 shadow-sm shadow-violet-100' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-200 hover:text-violet-700 hover:shadow-sm' }}">
+                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full {{ $category === $filter['value'] ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500' }}">
+                        @include('public.components.category-icon', ['icon' => $filter['icon'] ?? null])
+                    </span>
+                    <span>{{ $filter['label'] }}</span>
                 </a>
             @endforeach
 

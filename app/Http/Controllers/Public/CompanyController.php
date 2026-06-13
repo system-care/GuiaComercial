@@ -65,8 +65,10 @@ class CompanyController extends Controller
 
     private function profileData(Tenant $tenant, array $settings): array
     {
-        $logoPath = Arr::get($settings, 'logo_path');
-        $bannerPath = Arr::get($settings, 'banner_path');
+        $logoPath           = Arr::get($settings, 'logo_path');
+        $logoHorizontalPath = Arr::get($settings, 'logo_horizontal_path');
+        $bannerPath         = Arr::get($settings, 'banner_path');
+        $aboutImagePath     = Arr::get($settings, 'about_image_path');
         $whatsapp = Arr::get($settings, 'whatsapp') ?: Arr::get($settings, 'whatsapp_phone') ?: $tenant->phone;
         $description = trim((string) Arr::get($settings, 'description', ''));
         $publicAddress = $this->publicAddress($tenant, $settings);
@@ -76,13 +78,19 @@ class CompanyController extends Controller
             'name' => $tenant->name,
             'category' => $tenant->niche?->name ?? 'Serviços',
             'description' => $description !== '' ? $description : 'Este perfil ainda está em construção. Em breve a empresa poderá publicar mais detalhes sobre sua atuação, estrutura e diferenciais.',
-            'logo_url' => $logoPath ? asset('storage/' . $logoPath) : null,
-            'banner_url' => $bannerPath ? asset('storage/' . $bannerPath) : null,
+            'logo_url'            => $logoPath           ? asset('storage/' . $logoPath)           : null,
+            'logo_horizontal_url' => $logoHorizontalPath ? asset('storage/' . $logoHorizontalPath) : null,
+            'banner_url'          => $bannerPath         ? asset('storage/' . $bannerPath)         : null,
+            'about_image_url'     => $aboutImagePath     ? asset('storage/' . $aboutImagePath)     : null,
+            'hero_title'    => trim((string) Arr::get($settings, 'hero_title', '')),
+            'hero_subtitle' => trim((string) Arr::get($settings, 'hero_subtitle', '')),
             'initials' => $this->initials($tenant->name),
             'location' => $this->locationLabel($tenant, $settings),
             'public_address' => $publicAddress,
-            'phone' => $this->publicPhone($tenant, $settings),
-            'whatsapp_url' => $this->whatsappUrl($whatsapp),
+            'phone'           => $this->publicPhone($tenant, $settings),
+            'formatted_phone' => $this->formatPhone($this->publicPhone($tenant, $settings)),
+            'whatsapp_url'     => $this->whatsappUrl($whatsapp),
+            'whatsapp_encoded' => $this->encodeWhatsapp($whatsapp),
             'booking_url' => route('booking.show', $tenant->slug),
             'booking_redirect_url' => route('public.companies.booking', $tenant->slug),
             'has_online_booking' => (bool) Arr::get($settings, 'allow_online_booking', true),
@@ -94,7 +102,7 @@ class CompanyController extends Controller
         ];
     }
 
-    private function locationLabel(Tenant $tenant, array $settings): string
+    private function locationLabel(Tenant $tenant, array $settings): ?string
     {
         $neighborhood = Arr::get($settings, 'neighborhood') ?: Arr::get($settings, 'bairro');
 
@@ -102,7 +110,13 @@ class CompanyController extends Controller
             return "{$neighborhood}, {$tenant->city}";
         }
 
-        return $tenant->city ?: ($neighborhood ?: 'Localização não informada');
+        if ($tenant->city)    return $tenant->city;
+        if ($neighborhood)    return $neighborhood;
+
+        $address = trim((string) Arr::get($settings, 'address', ''));
+        if ($address !== '')  return $address;
+
+        return null;
     }
 
     private function publicAddress(Tenant $tenant, array $settings): ?string
@@ -125,6 +139,14 @@ class CompanyController extends Controller
         return $phone !== '' ? $phone : null;
     }
 
+    private function encodeWhatsapp(?string $phone): ?string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone);
+        if (! $digits) return null;
+        if (strlen($digits) <= 11) $digits = '55' . ltrim($digits, '0');
+        return base64_encode($digits);
+    }
+
     private function whatsappUrl(?string $phone): ?string
     {
         $digits = preg_replace('/\D+/', '', (string) $phone);
@@ -137,7 +159,25 @@ class CompanyController extends Controller
             $digits = '55' . ltrim($digits, '0');
         }
 
-        return 'https://wa.me/' . $digits;
+        return 'https://wa.me/' . $digits . '?text=' . rawurlencode('Seja bem-vindo! Como podemos lhe ajudar?');
+    }
+
+    private function formatPhone(?string $phone): ?string
+    {
+        if (! $phone) return null;
+
+        $digits = preg_replace('/\D/', '', $phone);
+
+        // Remove DDI 55 se o número tiver mais de 11 dígitos
+        if (strlen($digits) > 11 && str_starts_with($digits, '55')) {
+            $digits = substr($digits, 2);
+        }
+
+        return match (strlen($digits)) {
+            11 => '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 5) . '-' . substr($digits, 7),
+            10 => '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 4) . '-' . substr($digits, 6),
+            default => $phone,
+        };
     }
 
     private function attendanceModes(array $settings): array
